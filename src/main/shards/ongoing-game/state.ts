@@ -12,7 +12,10 @@ import type {
   OngoingGameSettingsData,
   OngoingGameSimplifiedChampMastery
 } from '@shared/shards/ongoing-game'
-import { createDefaultOngoingGamePanelPlayerCardTagSettings } from '@shared/shards/ongoing-game/settings'
+import {
+  createDefaultOngoingGamePanelPlayerCardTagSettings,
+  DEFAULT_WIN_RATE_TEAM_ALERT
+} from '@shared/shards/ongoing-game/settings'
 import type { SavedInfo } from '@shared/shards/saved-player'
 import type { RankedStats } from '@shared/types/league-client/ranked'
 import type { SummonerInfo } from '@shared/types/league-client/summoner'
@@ -77,6 +80,35 @@ export class OngoingGameSettings implements OngoingGameSettingsData {
    * 推测预组队时，需要至少多少局游戏才能被推测
    */
   premadeTeamInferMatchCountThreshold: number = 5
+
+  /**
+   * 胜率队弹窗提醒
+   */
+  winRateTeamAlertEnabled: boolean = DEFAULT_WIN_RATE_TEAM_ALERT.enabled
+  winRateTeamAlertMinWinRate: number = DEFAULT_WIN_RATE_TEAM_ALERT.minWinRate
+  winRateTeamAlertMinPlayerCount: number = DEFAULT_WIN_RATE_TEAM_ALERT.minPlayerCount
+  winRateTeamAlertMinMatches: number = DEFAULT_WIN_RATE_TEAM_ALERT.minMatches
+  winRateTeamAlertSystemNotification: boolean = DEFAULT_WIN_RATE_TEAM_ALERT.systemNotification
+
+  setWinRateTeamAlertEnabled(value: boolean) {
+    this.winRateTeamAlertEnabled = value
+  }
+
+  setWinRateTeamAlertMinWinRate(value: number) {
+    this.winRateTeamAlertMinWinRate = value
+  }
+
+  setWinRateTeamAlertMinPlayerCount(value: number) {
+    this.winRateTeamAlertMinPlayerCount = value
+  }
+
+  setWinRateTeamAlertMinMatches(value: number) {
+    this.winRateTeamAlertMinMatches = value
+  }
+
+  setWinRateTeamAlertSystemNotification(value: boolean) {
+    this.winRateTeamAlertSystemNotification = value
+  }
 
   setOrderPlayerBy(value: OngoingGamePanelOrderPlayerBy) {
     this.orderPlayerBy = value

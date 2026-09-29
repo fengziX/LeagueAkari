@@ -137,6 +137,97 @@
       </SettingsSection>
 
       <SettingsSection
+        setting-id="ongoing-game.win-rate-team-alert"
+        :title="t('settings.ongoingGame.titleWinRateTeamAlert')"
+      >
+        <SettingsRow
+          setting-id="ongoing-game.win-rate-team-alert.enabled"
+          :label="t('settings.ongoingGame.winRateTeamAlertEnabled.label')"
+          :label-description="t('settings.ongoingGame.winRateTeamAlertEnabled.description')"
+          :label-width="400"
+        >
+          <NSwitch
+            size="small"
+            :value="ogs.settings.winRateTeamAlertEnabled"
+            @update:value="(val) => og.setWinRateTeamAlertEnabled(val)"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          setting-id="ongoing-game.win-rate-team-alert.min-win-rate"
+          :label="t('settings.ongoingGame.winRateTeamAlertMinWinRate.label')"
+          :label-description="t('settings.ongoingGame.winRateTeamAlertMinWinRate.description')"
+          :label-width="400"
+          :disabled="!ogs.settings.winRateTeamAlertEnabled"
+        >
+          <NInputNumber
+            class="w-25!"
+            size="small"
+            :min="0"
+            :max="100"
+            :step="5"
+            :disabled="!ogs.settings.winRateTeamAlertEnabled"
+            :value="winRateTeamAlertMinWinRatePercent"
+            @update:value="(val) => og.setWinRateTeamAlertMinWinRate((val ?? 60) / 100)"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          setting-id="ongoing-game.win-rate-team-alert.min-player-count"
+          :label="t('settings.ongoingGame.winRateTeamAlertMinPlayerCount.label')"
+          :label-description="t('settings.ongoingGame.winRateTeamAlertMinPlayerCount.description')"
+          :label-width="400"
+          :disabled="!ogs.settings.winRateTeamAlertEnabled"
+        >
+          <NInputNumber
+            class="w-25!"
+            size="small"
+            :min="1"
+            :max="10"
+            :disabled="!ogs.settings.winRateTeamAlertEnabled"
+            :value="ogs.settings.winRateTeamAlertMinPlayerCount"
+            @update:value="(val) => og.setWinRateTeamAlertMinPlayerCount(val ?? 2)"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          setting-id="ongoing-game.win-rate-team-alert.min-matches"
+          :label="t('settings.ongoingGame.winRateTeamAlertMinMatches.label')"
+          :label-description="t('settings.ongoingGame.winRateTeamAlertMinMatches.description')"
+          :label-width="400"
+          :disabled="!ogs.settings.winRateTeamAlertEnabled"
+        >
+          <NInputNumber
+            class="w-25!"
+            size="small"
+            :min="0"
+            :max="200"
+            :step="5"
+            :disabled="!ogs.settings.winRateTeamAlertEnabled"
+            :value="ogs.settings.winRateTeamAlertMinMatches"
+            @update:value="(val) => og.setWinRateTeamAlertMinMatches(val ?? 0)"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          setting-id="ongoing-game.win-rate-team-alert.system-notification"
+          :label="t('settings.ongoingGame.winRateTeamAlertSystemNotification.label')"
+          :label-description="
+            t('settings.ongoingGame.winRateTeamAlertSystemNotification.description')
+          "
+          :label-width="400"
+          :disabled="!ogs.settings.winRateTeamAlertEnabled"
+        >
+          <NSwitch
+            size="small"
+            :disabled="!ogs.settings.winRateTeamAlertEnabled"
+            :value="ogs.settings.winRateTeamAlertSystemNotification"
+            @update:value="(val) => og.setWinRateTeamAlertSystemNotification(val)"
+          />
+        </SettingsRow>
+      </SettingsSection>
+
+      <SettingsSection
         setting-id="ongoing-game.player-card"
         :title="t('settings.ongoingGame.titlePlayerCard')"
       >
@@ -449,10 +540,15 @@ import { OngoingGameRenderer } from '@renderer-shared/shards/ongoing-game'
 import { useOngoingGameStore } from '@renderer-shared/shards/ongoing-game/store'
 import { useTranslation } from 'i18next-vue'
 import { NCheckbox, NInputNumber, NRadio, NRadioGroup, NScrollbar, NSwitch } from 'naive-ui'
+import { computed } from 'vue'
 
 const { t } = useTranslation()
 
 const as = useAppCommonStore()
 const ogs = useOngoingGameStore()
 const og = useInstance(OngoingGameRenderer)
+
+const winRateTeamAlertMinWinRatePercent = computed(() =>
+  Math.round(ogs.settings.winRateTeamAlertMinWinRate * 100)
+)
 </script>

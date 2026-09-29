@@ -83,6 +83,9 @@ window-manager-main:
 
 ongoing-game-main:
   taggedPlayer: 已标记的玩家
+  winRateTeamAlert:
+    title: 敌方疑似胜率队
+    body: 敌方有 {{count}} 名玩家胜率不低于 {{rate}}%
 
 client-installation-main:
   jumpList:

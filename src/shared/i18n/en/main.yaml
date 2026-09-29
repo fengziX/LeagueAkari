@@ -83,6 +83,9 @@ window-manager-main:
 
 ongoing-game-main:
   taggedPlayer: Tagged Player
+  winRateTeamAlert:
+    title: Enemy may be a win-rate team
+    body: '{{count}} enemy player(s) have a win rate of at least {{rate}}%'
 
 client-installation-main:
   jumpList:

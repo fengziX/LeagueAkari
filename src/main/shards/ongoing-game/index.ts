@@ -27,6 +27,7 @@ import { OngoingGamePlayerDataLoader } from './player-data-loader'
 import { ongoingGamePlayerCardTagsSchema } from './setting-schemas'
 import { OngoingGameSideEffectsController } from './side-effects-controller'
 import { OngoingGameSettings, OngoingGameState } from './state'
+import { OngoingGameWinRateTeamAlertController } from './win-rate-team-alert-controller'
 
 /**
  * 用于游戏过程中的对局分析, 包括在此期间的战绩查询, 计算等
@@ -51,6 +52,7 @@ export class OngoingGameMain implements IAkariShardInitDispose {
   private readonly _additionalInfo: OngoingGameAdditionalInfoController
   private readonly _sideEffects: OngoingGameSideEffectsController
   private readonly _champSelectHandoff: OngoingGameChampSelectHandoffController
+  private readonly _winRateTeamAlert: OngoingGameWinRateTeamAlertController
   private readonly _ipcHandlers: OngoingGameIpcHandlers
 
   constructor(
@@ -135,6 +137,47 @@ export class OngoingGameMain implements IAkariShardInitDispose {
         premadeTeamInferMatchCountThreshold: {
           default: this.settings.premadeTeamInferMatchCountThreshold,
           schema: z.number()
+        },
+        winRateTeamAlertEnabled: {
+          default: this.settings.winRateTeamAlertEnabled,
+          schema: z.boolean()
+        },
+        winRateTeamAlertMinWinRate: {
+          default: this.settings.winRateTeamAlertMinWinRate,
+          schema: z.number(),
+          transform: ({ value, oldValue }) => {
+            if (value >= 0 && value <= 1) {
+              return value
+            }
+
+            return oldValue
+          }
+        },
+        winRateTeamAlertMinPlayerCount: {
+          default: this.settings.winRateTeamAlertMinPlayerCount,
+          schema: z.number(),
+          transform: ({ value, oldValue }) => {
+            if (value >= 1 && value <= 10) {
+              return Math.floor(value)
+            }
+
+            return oldValue
+          }
+        },
+        winRateTeamAlertMinMatches: {
+          default: this.settings.winRateTeamAlertMinMatches,
+          schema: z.number(),
+          transform: ({ value, oldValue }) => {
+            if (value >= 0 && value <= 200) {
+              return Math.floor(value)
+            }
+
+            return oldValue
+          }
+        },
+        winRateTeamAlertSystemNotification: {
+          default: this.settings.winRateTeamAlertSystemNotification,
+          schema: z.boolean()
         }
       },
       this.settings
@@ -168,6 +211,7 @@ export class OngoingGameMain implements IAkariShardInitDispose {
     this._additionalInfo = new OngoingGameAdditionalInfoController(this._context)
     this._sideEffects = new OngoingGameSideEffectsController(this._context)
     this._champSelectHandoff = new OngoingGameChampSelectHandoffController(this._context)
+    this._winRateTeamAlert = new OngoingGameWinRateTeamAlertController(this._context)
     this._ipcHandlers = new OngoingGameIpcHandlers(
       this._context,
       this._matchHistory,
@@ -192,7 +236,12 @@ export class OngoingGameMain implements IAkariShardInitDispose {
       'autoRouteWhenGameStarts',
       'playerCardTags',
       'queryInLobbyPhase',
-      'premadeTeamInferMatchCountThreshold'
+      'premadeTeamInferMatchCountThreshold',
+      'winRateTeamAlertEnabled',
+      'winRateTeamAlertMinWinRate',
+      'winRateTeamAlertMinPlayerCount',
+      'winRateTeamAlertMinMatches',
+      'winRateTeamAlertSystemNotification'
     ])
 
     this._mobxUtils.propSync(OngoingGameMain.id, 'state', this.state, [
@@ -232,6 +281,7 @@ export class OngoingGameMain implements IAkariShardInitDispose {
     this._matchHistory.watch()
     this._watchUnavailableState()
     this._additionalInfo.watch()
+    this._winRateTeamAlert.watch()
   }
 
   private _watchConcurrencyChange() {

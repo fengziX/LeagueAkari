@@ -185,6 +185,7 @@ settings:
     title: Ongoing Game
     titleCommon: Ongoing Game
     titlePlayerCard: Player Card
+    titleWinRateTeamAlert: Win-Rate Team Alert
     enabled:
       label: Enable
       description: Perform match analysis when entering champion selection or during a match.
@@ -209,6 +210,21 @@ settings:
     premadeTeamInferMatchCountThreshold:
       label: Premade Team Inference Match Count Threshold
       description: Minimum number of games required to confirm premade teams.
+    winRateTeamAlertEnabled:
+      label: Enable Win-Rate Team Alert
+      description: Show a popup when several enemies have a high win rate. The check relies on loaded match history, so it will not fire before data is available.
+    winRateTeamAlertMinWinRate:
+      label: Minimum Win Rate (%)
+      description: Enemy players whose win rate is at least this percentage are counted. Default 60.
+    winRateTeamAlertMinPlayerCount:
+      label: Required Player Count
+      description: The alert fires only when at least this many enemies reach the win rate above. Default 2.
+    winRateTeamAlertMinMatches:
+      label: Minimum Games Played
+      description: Players with fewer games are excluded, avoiding skewed win rates from tiny samples. 0 means no limit.
+    winRateTeamAlertSystemNotification:
+      label: Also Send a System Notification
+      description: Send an additional Windows system notification besides the in-app popup, so the alert still reaches you when the main window is hidden.
     gameDetailsLoadCount:
       label: Game Details Load Count
       description_one: Will additionally load the detailed information for the first {{count}} match for game analysis.

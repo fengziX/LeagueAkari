@@ -185,6 +185,7 @@ settings:
     title: 对局
     titleCommon: 对局
     titlePlayerCard: 玩家卡片
+    titleWinRateTeamAlert: 胜率队提醒
     enabled:
       label: 启用
       description: 在进入英雄选择中或对局时，将展示房间内或对局内的所有玩家信息
@@ -209,6 +210,21 @@ settings:
     premadeTeamInferMatchCountThreshold:
       label: 预组队推测对局数阈值
       description: $t(common:appName) 同时会收集战绩数据，用于推测玩家是否为预组队（开黑）。该数值用于确定：多名玩家在同一队伍中累计出现多少场对局，才会被判定为预组队
+    winRateTeamAlertEnabled:
+      label: 启用胜率队提醒
+      description: 当敌方队伍中出现多名高胜率玩家时弹窗提醒。判定基于已加载的战绩，战绩尚未加载完成时不会触发
+    winRateTeamAlertMinWinRate:
+      label: 高胜率玩家的胜率下限（%）
+      description: 胜率不低于该百分比的敌方玩家，会被计入胜率队判定。默认 60
+    winRateTeamAlertMinPlayerCount:
+      label: 触发提醒所需的人数
+      description: 敌方达到上述胜率下限的玩家数量不少于该值时，才会触发提醒。默认 2 人
+    winRateTeamAlertMinMatches:
+      label: 参与判定的最少场次
+      description: 总场次低于该值的玩家不参与判定，用于排除场次过少导致的胜率偏差。0 表示不限制
+    winRateTeamAlertSystemNotification:
+      label: 同时发送系统通知
+      description: 除 $t(common:appName) 窗口内的弹窗之外，额外发送一条 Windows 系统通知，便于主窗口未显示时也能收到提醒
     gameDetailsLoadCount:
       label: 对局详情加载数量
       description: 会额外加载前 {{count}} 场对局的详细信息，用于分析战绩

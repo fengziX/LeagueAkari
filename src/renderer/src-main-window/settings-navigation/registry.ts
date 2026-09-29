@@ -360,6 +360,47 @@ const targetDefinitions = [
     descriptionKey: 'settings.ongoingGame.premadeTeamInferMatchCountThreshold.description'
   },
   {
+    id: 'ongoing-game.win-rate-team-alert',
+    route: { tab: 'ongoing-game' },
+    labelKey: 'settings.ongoingGame.titleWinRateTeamAlert',
+    searchable: false
+  },
+  {
+    id: 'ongoing-game.win-rate-team-alert.enabled',
+    route: { tab: 'ongoing-game' },
+    parentId: 'ongoing-game.win-rate-team-alert',
+    labelKey: 'settings.ongoingGame.winRateTeamAlertEnabled.label',
+    descriptionKey: 'settings.ongoingGame.winRateTeamAlertEnabled.description'
+  },
+  {
+    id: 'ongoing-game.win-rate-team-alert.min-win-rate',
+    route: { tab: 'ongoing-game' },
+    parentId: 'ongoing-game.win-rate-team-alert',
+    labelKey: 'settings.ongoingGame.winRateTeamAlertMinWinRate.label',
+    descriptionKey: 'settings.ongoingGame.winRateTeamAlertMinWinRate.description'
+  },
+  {
+    id: 'ongoing-game.win-rate-team-alert.min-player-count',
+    route: { tab: 'ongoing-game' },
+    parentId: 'ongoing-game.win-rate-team-alert',
+    labelKey: 'settings.ongoingGame.winRateTeamAlertMinPlayerCount.label',
+    descriptionKey: 'settings.ongoingGame.winRateTeamAlertMinPlayerCount.description'
+  },
+  {
+    id: 'ongoing-game.win-rate-team-alert.min-matches',
+    route: { tab: 'ongoing-game' },
+    parentId: 'ongoing-game.win-rate-team-alert',
+    labelKey: 'settings.ongoingGame.winRateTeamAlertMinMatches.label',
+    descriptionKey: 'settings.ongoingGame.winRateTeamAlertMinMatches.description'
+  },
+  {
+    id: 'ongoing-game.win-rate-team-alert.system-notification',
+    route: { tab: 'ongoing-game' },
+    parentId: 'ongoing-game.win-rate-team-alert',
+    labelKey: 'settings.ongoingGame.winRateTeamAlertSystemNotification.label',
+    descriptionKey: 'settings.ongoingGame.winRateTeamAlertSystemNotification.description'
+  },
+  {
     id: 'ongoing-game.player-card',
     route: { tab: 'ongoing-game' },
     labelKey: 'settings.ongoingGame.titlePlayerCard',

@@ -83,6 +83,11 @@ notifications:
       content: 尝试下载更新时出现错误：{{error}}。请检查网络连接，或查看公告获取更多信息以获取可能的解决方案。
       positiveText: 前往公告
       negativeText: 关闭
+    winRateTeamAlert:
+      title: 敌方疑似胜率队
+      content: 敌方有 {{count}} 名玩家胜率不低于 {{rate}}%
+      player: '{{name}}：{{rate}}%（{{wins}}/{{games}}）'
+      negativeText: 知道了
 selfUpdate:
   tasks:
     title: 自动更新

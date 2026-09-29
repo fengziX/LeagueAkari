@@ -10,7 +10,10 @@ import type {
   OngoingGameSimplifiedChampMastery,
   QueryStage
 } from '@shared/shards/ongoing-game'
-import { createDefaultOngoingGamePanelPlayerCardTagSettings } from '@shared/shards/ongoing-game/settings'
+import {
+  createDefaultOngoingGamePanelPlayerCardTagSettings,
+  DEFAULT_WIN_RATE_TEAM_ALERT
+} from '@shared/shards/ongoing-game/settings'
 import type { SavedInfo } from '@shared/shards/saved-player'
 import type { RankedStats } from '@shared/types/league-client/ranked'
 import type { SummonerInfo } from '@shared/types/league-client/summoner'
@@ -40,7 +43,13 @@ export const useOngoingGameStore = defineStore('shard:ongoing-game-renderer', ()
     showJunglePathingForAllPlayers: false,
     autoRouteWhenGameStarts: false,
     playerCardTags: createDefaultOngoingGamePanelPlayerCardTagSettings(),
-    queryInLobbyPhase: true
+    queryInLobbyPhase: true,
+
+    winRateTeamAlertEnabled: DEFAULT_WIN_RATE_TEAM_ALERT.enabled,
+    winRateTeamAlertMinWinRate: DEFAULT_WIN_RATE_TEAM_ALERT.minWinRate,
+    winRateTeamAlertMinPlayerCount: DEFAULT_WIN_RATE_TEAM_ALERT.minPlayerCount,
+    winRateTeamAlertMinMatches: DEFAULT_WIN_RATE_TEAM_ALERT.minMatches,
+    winRateTeamAlertSystemNotification: DEFAULT_WIN_RATE_TEAM_ALERT.systemNotification
   })
 
   const championSelections = shallowRef<Record<string, number>>({})
