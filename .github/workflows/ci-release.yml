@@ -61,17 +61,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
-            os: macos-15
-            build_command: yarn build:mac
-            artifact_name: macos
-            release_asset_prefix: league-akari-mac-arm64
-            cache_path: |
-              ~/Library/Caches/electron
-              ~/Library/Caches/electron-builder
-            artifact_paths: |
-              dist/*.dmg
-              dist/*.zip
           - name: Windows
             os: windows-2022
             build_command: yarn build:win
