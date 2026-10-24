@@ -2,7 +2,7 @@
   <div ref="playerTabRootEl" class="relative h-full">
     <NScrollbar x-scrollable :theme-overrides="{ width: '8px' }" ref="scrollbarEl">
       <div ref="layoutContainerEl" class="@container w-full">
-        <div class="mx-auto w-full max-w-191 pt-10 pb-4 @[1064px]:max-w-266">
+        <div class="mx-auto w-full pt-10 pb-4">
           <PlayerTabHeader class="mb-6 h-28 px-4" />
 
           <div class="box-border px-4 @[764px]:px-0">
