@@ -27,6 +27,13 @@ const BOOTSTRAP_RETRY_KEY = 'akari:aux-window:bootstrap-retries'
 const MAX_BOOTSTRAP_RETRIES = 2
 const RETRY_DELAY_MS = 800
 
+/**
+ * `manager.setup()` 理论上不会永久挂起，但一旦某个分片的 `onInit` 等不到结果，
+ * 它既不会抛错也不会结束 —— 表现就是永久白窗（无报错、无弹窗、无崩溃）。
+ * 这里加一个上限，把「挂起」也归入可恢复的失败路径。
+ */
+const BOOTSTRAP_TIMEOUT_MS = 20000
+
 function describeError(error: unknown): string {
   if (error instanceof Error) {
     const cause = (error as { cause?: unknown }).cause
@@ -58,12 +65,12 @@ function escapeHtml(text: string) {
 }
 
 /**
- * 尽力把启动失败写进主进程日志。
+ * 尽力把消息写进主进程日志。
  *
- * 此时 logger 分片往往还没初始化（它自己可能就是失败的那个），因此不能走
- * `LoggerRenderer`，只能直接调用原始的 IPC 通道。
+ * 启动阶段 logger 分片往往还没初始化（它自己可能就是失败的那个），
+ * 因此不能走 `LoggerRenderer`，只能直接调用原始的 IPC 通道。
  */
-function reportBootstrapFailure(message: string) {
+function reportToMain(level: 'info' | 'error', message: string) {
   try {
     const invoke = window.electron?.ipcRenderer?.invoke
 
@@ -71,12 +78,31 @@ function reportBootstrapFailure(message: string) {
       return
     }
 
-    Promise.resolve(invoke('akariCall', MAIN_SHARD_NAMESPACE, 'log', 'aux-window', 'error', message)).catch(
-      () => {}
-    )
+    Promise.resolve(
+      invoke('akariCall', MAIN_SHARD_NAMESPACE, 'log', 'aux-window', level, message)
+    ).catch(() => {})
   } catch {
     // 记录失败本身不应再抛错
   }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} did not settle within ${ms}ms`))
+    }, ms)
+
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      }
+    )
+  })
 }
 
 function renderBootstrapFailure(container: HTMLElement, message: string) {
@@ -114,7 +140,7 @@ function handleBootstrapFailure(error: unknown) {
   const message = describeError(error)
 
   console.error('League Akari 无法正确加载：', error)
-  reportBootstrapFailure(message)
+  reportToMain('error', `bootstrap failed: ${message}`)
 
   let retries = 0
 
@@ -148,6 +174,8 @@ function handleBootstrapFailure(error: unknown) {
 }
 
 try {
+  reportToMain('info', 'bootstrap: stage=module-start')
+
   dayjs.extend(relativeTime)
   dayjs.extend(duration)
 
@@ -155,8 +183,16 @@ try {
     .use(createPinia())
     .use(I18nextVue, { i18next })
     .use(manager)
-  await manager.setup()
+
+  reportToMain('info', 'bootstrap: stage=app-created')
+
+  await withTimeout(manager.setup(), BOOTSTRAP_TIMEOUT_MS, 'manager.setup()')
+
+  reportToMain('info', 'bootstrap: stage=setup-ok')
+
   app.mount('#app')
+
+  reportToMain('info', 'bootstrap: stage=mounted')
 
   try {
     sessionStorage.removeItem(BOOTSTRAP_RETRY_KEY)
