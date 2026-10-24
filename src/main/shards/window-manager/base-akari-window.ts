@@ -504,6 +504,11 @@ export abstract class BaseAkariWindow<
     this._window.on('show', () => {
       this._logger.info(`BrowserWindow show (${this._namespace})`)
       runInAction(() => (this.state.show = true))
+
+      // 复用同一个窗口反复 hide/show 后，Windows 上偶发整窗白帧：渲染进程其实正常，
+      // 只是合成器没有产出新帧。显示时主动请求重绘，并在稍后补一次。
+      this._requestRepaint()
+      this._probeRenderedContent()
     })
 
     this._window.on('hide', () => {
@@ -700,6 +705,7 @@ export abstract class BaseAkariWindow<
         }
 
         this._syncShowStateFromWindow()
+        this._requestRepaint()
 
         return
       }
@@ -730,11 +736,67 @@ export abstract class BaseAkariWindow<
     }
   }
 
+  /**
+   * 主动请求一次完整重绘。
+   *
+   * 同一个原生窗口被反复 hide/show 后，Windows 上偶发整窗白帧 —— 渲染进程状态正常、
+   * DOM 也在，只是合成器没有产出新帧。`invalidate()` 会让 Chromium 重新合成；
+   * 再补一次稍晚的调用，覆盖「显示后首帧被丢弃」的时序。
+   */
+  private _requestRepaint() {
+    const invalidate = () => {
+      const wc = this._window?.webContents as
+        | (Electron.WebContents & { invalidate?: () => void })
+        | undefined
+
+      if (!wc || wc.isDestroyed()) {
+        return
+      }
+
+      try {
+        wc.invalidate?.()
+      } catch {
+        // 重绘请求失败不应影响窗口显示
+      }
+    }
+
+    invalidate()
+    setTimeout(invalidate, 150)
+  }
+
+  /**
+   * 把渲染进程实际渲染出的内容摘要写进日志，用于区分「窗口空白」是绘制问题还是渲染问题：
+   * 有节点且有文本 → 绘制层；节点或文本为空 → 渲染层。
+   */
+  private _probeRenderedContent() {
+    setTimeout(() => {
+      const wc = this._window?.webContents
+
+      if (!wc || wc.isDestroyed() || !this._window?.isVisible()) {
+        return
+      }
+
+      wc.executeJavaScript(
+        `(() => {
+          const body = document.body
+          if (!body) return 'no-body'
+          const text = (body.innerText || '').replace(/\\s+/g, ' ').trim()
+          return 'nodes=' + body.querySelectorAll('*').length + ' textLen=' + text.length + ' text=' + text.slice(0, 120)
+        })()`
+      )
+        .then((summary: string) => {
+          this._logger.info(`Rendered content probe (${this._namespace}): ${summary}`)
+        })
+        .catch((error: unknown) => {
+          this._logger.warn(`Rendered content probe failed (${this._namespace})`, error)
+        })
+    }, 300)
+  }
+
   show(inactive = false) {
     if (!this._window) {
       return
     }
-
     if (this._restoreMaximizedState() && !inactive) {
       // maximize() shows a hidden window without focusing it.
       this._window.focus()
