@@ -173,8 +173,8 @@ function formatRate(rate: number) {
 /**
  * 直接使用 akari 协议从客户端取英雄头像, 免去为这一个窗口引入资源 provider 的一整套分片
  */
-function championIconUrl(championId: number) {
-  return `akari://league-client/lol-game-data/assets/v1/champion-icons/${championId}.png`
+function championIconUrl(championId: number | null) {
+  return `akari://league-client/lol-game-data/assets/v1/champion-icons/${championId ?? 0}.png`
 }
 
 /**

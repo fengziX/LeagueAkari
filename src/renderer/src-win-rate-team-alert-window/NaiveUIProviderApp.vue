@@ -8,11 +8,13 @@
     inline-theme-disabled
   >
     <NMessageProvider placement="bottom">
-      <NDialogProvider>
-        <AkariResourceProvider :value="akariResourceProvider">
-          <App />
-        </AkariResourceProvider>
-      </NDialogProvider>
+      <NNotificationProvider>
+        <NDialogProvider>
+          <AkariResourceProvider :value="akariResourceProvider">
+            <App />
+          </AkariResourceProvider>
+        </NDialogProvider>
+      </NNotificationProvider>
     </NMessageProvider>
   </NConfigProvider>
 </template>
@@ -29,7 +31,7 @@ import {
   getNaiveUiTheme,
   getNaiveUiThemeOverrides
 } from '@renderer-shared/theme/naive-ui'
-import { NConfigProvider, NDialogProvider, NMessageProvider } from 'naive-ui'
+import { NConfigProvider, NDialogProvider, NMessageProvider, NNotificationProvider } from 'naive-ui'
 import { computed } from 'vue'
 
 import App from './App.vue'

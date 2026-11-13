@@ -145,17 +145,19 @@ export class OngoingGameWinRateTeamAlertController {
    */
   private _toDisplayPayload(payload: WinRateTeamAlertPayload): WinRateTeamAlertDisplayPayload {
     const { state } = this._context
+    // championSelections 在拿不到战局时返回 `{}`, 这里统一按映射表读取
+    const selections = state.championSelections as Record<string, number>
 
     return {
       ...payload,
       createdAt: Date.now(),
       players: payload.players.map((player) => {
-        const championId = state.championSelections[player.puuid]
+        const championId = selections[player.puuid]
 
         return {
           ...player,
           name: riotId(state.summoner[player.puuid]),
-          championId: championId && championId > 0 ? championId : null
+          championId: typeof championId === 'number' && championId > 0 ? championId : null
         }
       })
     }
