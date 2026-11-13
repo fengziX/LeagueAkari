@@ -5,6 +5,7 @@ import type { WindowManagerMainContext } from './context'
 import type { AkariMainWindow } from './main-window/window'
 import type { AkariOngoingGameWindow } from './ongoing-game-window/window'
 import type { AkariOpggWindow } from './opgg-window/window'
+import type { AkariWinRateTeamAlertWindow } from './win-rate-team-alert-window/window'
 
 interface WindowManagerWindows {
   mainWindow: AkariMainWindow
@@ -12,6 +13,7 @@ interface WindowManagerWindows {
   opggWindow: AkariOpggWindow
   ongoingGameWindow: AkariOngoingGameWindow
   cdTimerWindow: AkariCdTimerWindow
+  winRateTeamAlertWindow: AkariWinRateTeamAlertWindow
 }
 
 export class WindowManagerLifecycleController {
@@ -56,6 +58,7 @@ export class WindowManagerLifecycleController {
     await this._windows.opggWindow.onInit()
     await this._windows.ongoingGameWindow.onInit()
     await this._windows.cdTimerWindow.onInit()
+    await this._windows.winRateTeamAlertWindow.onInit()
   }
 
   finish() {

@@ -5,6 +5,7 @@ import {
   MAIN_SHARD_NAMESPACE_MAIN_WINDOW,
   MAIN_SHARD_NAMESPACE_ONGOING_GAME_WINDOW,
   MAIN_SHARD_NAMESPACE_OPGG_WINDOW,
+  MAIN_SHARD_NAMESPACE_WIN_RATE_TEAM_ALERT_WINDOW,
   type WindowManagerRendererContext
 } from './context'
 import {
@@ -12,7 +13,8 @@ import {
   useCdTimerWindowStore,
   useMainWindowStore,
   useOngoingGameWindowStore,
-  useOpggWindowStore
+  useOpggWindowStore,
+  useWinRateTeamAlertWindowStore
 } from './store'
 
 export class AkariMainWindow extends BaseAkariWindowRenderer<
@@ -185,5 +187,19 @@ export class AkariCdTimerWindow extends BaseAkariWindowRenderer<
   // 一份复制后的逻辑, 嗯. 就这样吧
   sendInGame(text: string) {
     return this._context.ipc.call(MAIN_SHARD_NAMESPACE_CD_TIMER_WINDOW, 'sendInGame', text)
+  }
+}
+
+export class AkariWinRateTeamAlertWindow extends BaseAkariWindowRenderer<
+  ReturnType<typeof useWinRateTeamAlertWindowStore>,
+  ReturnType<typeof useWinRateTeamAlertWindowStore>['settings']
+> {
+  constructor(_context: WindowManagerRendererContext) {
+    super(
+      _context,
+      MAIN_SHARD_NAMESPACE_WIN_RATE_TEAM_ALERT_WINDOW,
+      () => useWinRateTeamAlertWindowStore(),
+      () => useWinRateTeamAlertWindowStore().settings
+    )
   }
 }

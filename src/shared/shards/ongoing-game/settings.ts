@@ -69,18 +69,13 @@ export interface OngoingGameSettingsData extends OngoingGamePanelSettings {
    * 胜率队提醒: 参与判定的玩家所需的最少总场次, 0 表示不限制
    */
   winRateTeamAlertMinMatches: number
-  /**
-   * 胜率队提醒: 是否额外发送系统通知 (适用于主窗口不在前台的情况)
-   */
-  winRateTeamAlertSystemNotification: boolean
 }
 
 export const DEFAULT_WIN_RATE_TEAM_ALERT = Object.freeze({
   enabled: true,
   minWinRate: 0.6,
   minPlayerCount: 2,
-  minMatches: 0,
-  systemNotification: true
+  minMatches: 0
 })
 
 export const DEFAULT_ONGOING_GAME_PANEL_PLAYER_CARD_TAG_SETTINGS =

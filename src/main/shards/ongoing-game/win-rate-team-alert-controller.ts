@@ -1,21 +1,15 @@
-import { i18next } from '@main/i18n'
-import icon from '@resources/LA_ICON.ico?asset&asarUnpack'
 import type { AggregatedAnalysis } from '@shared/data-adapter/analysis/player'
-import type { QueryStage } from '@shared/shards/ongoing-game'
-import {
-  evaluateWinRateTeamAlert,
-  type WinRateTeamAlertCriteria,
-  type WinRateTeamAlertPayload
+import type {
+  QueryStage,
+  WinRateTeamAlertCriteria,
+  WinRateTeamAlertDisplayPayload,
+  WinRateTeamAlertPayload
 } from '@shared/shards/ongoing-game'
-import { Notification } from 'electron'
+import { evaluateWinRateTeamAlert } from '@shared/shards/ongoing-game'
+import { riotId } from '@shared/utils/name'
 import { compareStructural } from 'mobx'
 
 import type { OngoingGameMainContext } from './context'
-
-/**
- * 胜率队提醒的渲染层事件名
- */
-export const WIN_RATE_TEAM_ALERT_EVENT = 'win-rate-team-alert'
 
 /**
  * 分析结果并非一次性就绪, 战绩会随查询进度逐步填充, 因此需要少量延迟后再判定
@@ -40,7 +34,7 @@ function getGameId(queryStage: QueryStage): number | null {
 }
 
 /**
- * 敌方队伍中出现 N 名以上高胜率玩家时, 提醒用户 “这是胜率队”。
+ * 敌方队伍中出现 N 名以上高胜率玩家时, 弹出一个大尺寸窗口提醒用户 “这是胜率队”。
  *
  * 判定依赖 `state.analysis`, 因此只有战绩查询有结果后才可能触发。
  */
@@ -49,6 +43,11 @@ export class OngoingGameWinRateTeamAlertController {
    * 已提醒过的玩家数量, 避免分析结果逐步填充时重复弹出相同的提醒
    */
   private readonly _alertedPlayerCount = new Map<string, number>()
+
+  /**
+   * 当前提醒对应的查询阶段, 阶段切换后自动收起窗口, 避免挡住对局画面
+   */
+  private _alertedPhase: string | null = null
 
   constructor(private readonly _context: OngoingGameMainContext) {}
 
@@ -86,13 +85,26 @@ export class OngoingGameWinRateTeamAlertController {
       (isUnavailable) => {
         if (isUnavailable) {
           this._alertedPlayerCount.clear()
+          this._alertedPhase = null
+          this._context.windowManager.winRateTeamAlertWindow.dismiss()
+        }
+      }
+    )
+
+    // 阶段一变 (例如选人结束进入对局) 就收起提醒窗口
+    mobxUtils.reaction(
+      () => state.queryStage.phase,
+      (phase) => {
+        if (this._alertedPhase && phase !== this._alertedPhase) {
+          this._alertedPhase = null
+          this._context.windowManager.winRateTeamAlertWindow.dismiss()
         }
       }
     )
   }
 
   private _evaluate(snapshot: WinRateTeamAlertSnapshot) {
-    const { leagueClient, logger, settings } = this._context
+    const { leagueClient, logger } = this._context
     const selfPuuid = leagueClient.data.summoner.me?.puuid ?? null
 
     const payload = evaluateWinRateTeamAlert({
@@ -117,6 +129,7 @@ export class OngoingGameWinRateTeamAlertController {
     }
 
     this._alertedPlayerCount.set(key, payload.players.length)
+    this._alertedPhase = snapshot.phase
 
     logger.info('Win rate team alert triggered', {
       gameId: payload.gameId,
@@ -124,31 +137,27 @@ export class OngoingGameWinRateTeamAlertController {
       players: payload.players.length
     })
 
-    this._context.ipc.sendEvent(this._context.namespace, WIN_RATE_TEAM_ALERT_EVENT, payload)
-
-    if (settings.winRateTeamAlertSystemNotification) {
-      this._showSystemNotification(payload)
-    }
+    this._context.windowManager.winRateTeamAlertWindow.showAlert(this._toDisplayPayload(payload))
   }
 
-  private _showSystemNotification(payload: WinRateTeamAlertPayload) {
-    const { logger } = this._context
+  /**
+   * 补充召唤师名与英雄, 让弹窗渲染进程不必再查询战局状态
+   */
+  private _toDisplayPayload(payload: WinRateTeamAlertPayload): WinRateTeamAlertDisplayPayload {
+    const { state } = this._context
 
-    try {
-      if (!Notification.isSupported()) {
-        return
-      }
+    return {
+      ...payload,
+      createdAt: Date.now(),
+      players: payload.players.map((player) => {
+        const championId = state.championSelections[player.puuid]
 
-      new Notification({
-        title: i18next.t('ongoing-game-main.winRateTeamAlert.title'),
-        body: i18next.t('ongoing-game-main.winRateTeamAlert.body', {
-          count: payload.players.length,
-          rate: (payload.criteria.minWinRate * 100).toFixed(0)
-        }),
-        icon
-      }).show()
-    } catch (error) {
-      logger.warn('Failed to send win rate team system notification', error)
+        return {
+          ...player,
+          name: riotId(state.summoner[player.puuid]),
+          championId: championId && championId > 0 ? championId : null
+        }
+      })
     }
   }
 }

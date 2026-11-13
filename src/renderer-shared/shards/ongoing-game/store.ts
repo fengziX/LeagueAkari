@@ -48,8 +48,7 @@ export const useOngoingGameStore = defineStore('shard:ongoing-game-renderer', ()
     winRateTeamAlertEnabled: DEFAULT_WIN_RATE_TEAM_ALERT.enabled,
     winRateTeamAlertMinWinRate: DEFAULT_WIN_RATE_TEAM_ALERT.minWinRate,
     winRateTeamAlertMinPlayerCount: DEFAULT_WIN_RATE_TEAM_ALERT.minPlayerCount,
-    winRateTeamAlertMinMatches: DEFAULT_WIN_RATE_TEAM_ALERT.minMatches,
-    winRateTeamAlertSystemNotification: DEFAULT_WIN_RATE_TEAM_ALERT.systemNotification
+    winRateTeamAlertMinMatches: DEFAULT_WIN_RATE_TEAM_ALERT.minMatches
   })
 
   const championSelections = shallowRef<Record<string, number>>({})

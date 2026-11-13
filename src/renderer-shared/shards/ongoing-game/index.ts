@@ -134,14 +134,6 @@ export class OngoingGameRenderer implements IAkariShardInitDispose {
     return this._settingUtils.set(MAIN_SHARD_NAMESPACE, 'winRateTeamAlertMinMatches', value)
   }
 
-  setWinRateTeamAlertSystemNotification(value: boolean) {
-    return this._settingUtils.set(
-      MAIN_SHARD_NAMESPACE,
-      'winRateTeamAlertSystemNotification',
-      value
-    )
-  }
-
   reload() {
     this._ipc.call(MAIN_SHARD_NAMESPACE, 'reload')
   }

@@ -394,13 +394,6 @@ const targetDefinitions = [
     descriptionKey: 'settings.ongoingGame.winRateTeamAlertMinMatches.description'
   },
   {
-    id: 'ongoing-game.win-rate-team-alert.system-notification',
-    route: { tab: 'ongoing-game' },
-    parentId: 'ongoing-game.win-rate-team-alert',
-    labelKey: 'settings.ongoingGame.winRateTeamAlertSystemNotification.label',
-    descriptionKey: 'settings.ongoingGame.winRateTeamAlertSystemNotification.description'
-  },
-  {
     id: 'ongoing-game.player-card',
     route: { tab: 'ongoing-game' },
     labelKey: 'settings.ongoingGame.titlePlayerCard',

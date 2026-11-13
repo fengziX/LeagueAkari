@@ -13,6 +13,7 @@ import { SavedPlayerMain } from '../saved-player'
 import { SettingFactoryMain } from '../setting-factory'
 import { SetterSettingService } from '../setting-factory/setter-setting-service'
 import { SgpMain } from '../sgp'
+import { WindowManagerMain } from '../window-manager'
 import { OngoingGameAdditionalInfoController } from './additional-info-controller'
 import { OngoingGameAnalysisController } from './analysis-controller'
 import { OngoingGameChampSelectHandoffController } from './champ-select-handoff-controller'
@@ -64,7 +65,8 @@ export class OngoingGameMain implements IAkariShardInitDispose {
     private readonly _sgpMain: SgpMain,
     private readonly _savedPlayer: SavedPlayerMain,
     private readonly _appCommon: AppCommonMain,
-    private readonly _featureGating: FeatureGatingMain
+    private readonly _featureGating: FeatureGatingMain,
+    private readonly _windowManager: WindowManagerMain
   ) {
     this.settings = new OngoingGameSettings()
     this._logger = _loggerFactory.create(OngoingGameMain.id)
@@ -174,10 +176,6 @@ export class OngoingGameMain implements IAkariShardInitDispose {
 
             return oldValue
           }
-        },
-        winRateTeamAlertSystemNotification: {
-          default: this.settings.winRateTeamAlertSystemNotification,
-          schema: z.boolean()
         }
       },
       this.settings
@@ -202,7 +200,8 @@ export class OngoingGameMain implements IAkariShardInitDispose {
       leagueClient: this._leagueClient,
       sgp: this._sgpMain,
       savedPlayer: this._savedPlayer,
-      featureGating: this._featureGating
+      featureGating: this._featureGating,
+      windowManager: this._windowManager
     }
 
     this._matchHistory = new OngoingGameMatchHistoryLoader(this._context)
@@ -240,8 +239,7 @@ export class OngoingGameMain implements IAkariShardInitDispose {
       'winRateTeamAlertEnabled',
       'winRateTeamAlertMinWinRate',
       'winRateTeamAlertMinPlayerCount',
-      'winRateTeamAlertMinMatches',
-      'winRateTeamAlertSystemNotification'
+      'winRateTeamAlertMinMatches'
     ])
 
     this._mobxUtils.propSync(OngoingGameMain.id, 'state', this.state, [

@@ -8,6 +8,7 @@ import type { MobxUtilsMain } from '../mobx-utils'
 import type { SavedPlayerMain } from '../saved-player'
 import type { SetterSettingService } from '../setting-factory/setter-setting-service'
 import type { SgpMain } from '../sgp'
+import type { WindowManagerMain } from '../window-manager'
 import type { OngoingGameSettings, OngoingGameState } from './state'
 
 export const ONGOING_GAME_MAIN_NAMESPACE = 'ongoing-game-main'
@@ -37,4 +38,5 @@ export interface OngoingGameMainContext {
   sgp: SgpMain
   savedPlayer: SavedPlayerMain
   featureGating: FeatureGatingMain
+  windowManager: WindowManagerMain
 }

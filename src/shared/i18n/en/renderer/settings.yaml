@@ -212,7 +212,7 @@ settings:
       description: Minimum number of games required to confirm premade teams.
     winRateTeamAlertEnabled:
       label: Enable Win-Rate Team Alert
-      description: Show a popup when several enemies have a high win rate. The check relies on loaded match history, so it will not fire before data is available.
+      description: Show a large always-on-top window when several enemies have a high win rate. The check relies on loaded match history, so it will not fire before data is available.
     winRateTeamAlertMinWinRate:
       label: Minimum Win Rate (%)
       description: Enemy players whose win rate is at least this percentage are counted. Default 60.
@@ -222,9 +222,6 @@ settings:
     winRateTeamAlertMinMatches:
       label: Minimum Games Played
       description: Players with fewer games are excluded, avoiding skewed win rates from tiny samples. 0 means no limit.
-    winRateTeamAlertSystemNotification:
-      label: Also Send a System Notification
-      description: Send an additional Windows system notification besides the in-app popup, so the alert still reaches you when the main window is hidden.
     gameDetailsLoadCount:
       label: Game Details Load Count
       description_one: Will additionally load the detailed information for the first {{count}} match for game analysis.

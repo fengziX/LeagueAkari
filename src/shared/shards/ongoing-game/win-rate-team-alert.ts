@@ -41,6 +41,24 @@ export interface WinRateTeamAlertPayload {
   players: WinRateTeamAlertPlayer[]
 }
 
+/**
+ * 弹窗展示用的玩家信息: 在判定结果之上补充召唤师名与当前英雄,
+ * 避免弹窗渲染进程再去查询战局状态。
+ */
+export interface WinRateTeamAlertDisplayPlayer extends WinRateTeamAlertPlayer {
+  /** 召唤师显示名, 形如 `Name#TAG`; 拿不到时为 `-` */
+  name: string
+  /** 已选 / 使用中的英雄 ID, 未知时为 null */
+  championId: number | null
+}
+
+export interface WinRateTeamAlertDisplayPayload
+  extends Omit<WinRateTeamAlertPayload, 'players'> {
+  players: WinRateTeamAlertDisplayPlayer[]
+  /** 提醒生成时间, 便于渲染层区分多次提醒 */
+  createdAt: number
+}
+
 export interface EvaluateWinRateTeamAlertArgs {
   /** 队伍标识到玩家 puuid 列表的映射 */
   teams: Record<string, string[]>

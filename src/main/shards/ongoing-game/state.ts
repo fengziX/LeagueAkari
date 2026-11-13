@@ -88,7 +88,6 @@ export class OngoingGameSettings implements OngoingGameSettingsData {
   winRateTeamAlertMinWinRate: number = DEFAULT_WIN_RATE_TEAM_ALERT.minWinRate
   winRateTeamAlertMinPlayerCount: number = DEFAULT_WIN_RATE_TEAM_ALERT.minPlayerCount
   winRateTeamAlertMinMatches: number = DEFAULT_WIN_RATE_TEAM_ALERT.minMatches
-  winRateTeamAlertSystemNotification: boolean = DEFAULT_WIN_RATE_TEAM_ALERT.systemNotification
 
   setWinRateTeamAlertEnabled(value: boolean) {
     this.winRateTeamAlertEnabled = value
@@ -104,10 +103,6 @@ export class OngoingGameSettings implements OngoingGameSettingsData {
 
   setWinRateTeamAlertMinMatches(value: number) {
     this.winRateTeamAlertMinMatches = value
-  }
-
-  setWinRateTeamAlertSystemNotification(value: boolean) {
-    this.winRateTeamAlertSystemNotification = value
   }
 
   setOrderPlayerBy(value: OngoingGamePanelOrderPlayerBy) {

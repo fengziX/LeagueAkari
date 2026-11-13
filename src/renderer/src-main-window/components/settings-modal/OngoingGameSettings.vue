@@ -208,23 +208,6 @@
             @update:value="(val) => og.setWinRateTeamAlertMinMatches(val ?? 0)"
           />
         </SettingsRow>
-
-        <SettingsRow
-          setting-id="ongoing-game.win-rate-team-alert.system-notification"
-          :label="t('settings.ongoingGame.winRateTeamAlertSystemNotification.label')"
-          :label-description="
-            t('settings.ongoingGame.winRateTeamAlertSystemNotification.description')
-          "
-          :label-width="400"
-          :disabled="!ogs.settings.winRateTeamAlertEnabled"
-        >
-          <NSwitch
-            size="small"
-            :disabled="!ogs.settings.winRateTeamAlertEnabled"
-            :value="ogs.settings.winRateTeamAlertSystemNotification"
-            @update:value="(val) => og.setWinRateTeamAlertSystemNotification(val)"
-          />
-        </SettingsRow>
       </SettingsSection>
 
       <SettingsSection

@@ -1,3 +1,4 @@
+import type { WinRateTeamAlertDisplayPayload } from '@shared/shards/ongoing-game'
 import type {
   BackgroundMaterialSetting,
   DownloadTask,
@@ -109,6 +110,28 @@ export const useOngoingGameWindowStore = defineStore(
       settings,
       ...basicWindowState,
       fakeShow
+    }
+  }
+)
+
+export const useWinRateTeamAlertWindowStore = defineStore(
+  'shard:window-manager-renderer/win-rate-team-alert-window',
+  () => {
+    const settings = shallowReactive({
+      opacity: 1,
+      pinned: true
+    })
+
+    const basicWindowState = useBasicWindowStates()
+
+    const payload = shallowRef<WinRateTeamAlertDisplayPayload | null>(null)
+    const alertSeq = ref(0)
+
+    return {
+      settings,
+      payload,
+      alertSeq,
+      ...basicWindowState
     }
   }
 )

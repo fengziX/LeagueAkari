@@ -20,6 +20,7 @@ import { AkariMainWindow } from './main-window/window'
 import { AkariOngoingGameWindow } from './ongoing-game-window/window'
 import { AkariOpggWindow } from './opgg-window/window'
 import { WindowManagerSettings, WindowManagerState } from './state'
+import { AkariWinRateTeamAlertWindow } from './win-rate-team-alert-window/window'
 
 @Shard(WindowManagerMain.id)
 export class WindowManagerMain implements IAkariShardInitDispose {
@@ -38,6 +39,7 @@ export class WindowManagerMain implements IAkariShardInitDispose {
   public readonly opggWindow: AkariOpggWindow
   public readonly ongoingGameWindow: AkariOngoingGameWindow
   public readonly cdTimerWindow: AkariCdTimerWindow
+  public readonly winRateTeamAlertWindow: AkariWinRateTeamAlertWindow
 
   constructor(
     private readonly _ipc: AkariIpcMain,
@@ -71,12 +73,14 @@ export class WindowManagerMain implements IAkariShardInitDispose {
     this.opggWindow = new AkariOpggWindow(this._context)
     this.ongoingGameWindow = new AkariOngoingGameWindow(this._context)
     this.cdTimerWindow = new AkariCdTimerWindow(this._context)
+    this.winRateTeamAlertWindow = new AkariWinRateTeamAlertWindow(this._context)
     this._lifecycleController = new WindowManagerLifecycleController(this._context, {
       mainWindow: this.mainWindow,
       auxWindow: this.auxWindow,
       opggWindow: this.opggWindow,
       ongoingGameWindow: this.ongoingGameWindow,
-      cdTimerWindow: this.cdTimerWindow
+      cdTimerWindow: this.cdTimerWindow,
+      winRateTeamAlertWindow: this.winRateTeamAlertWindow
     })
   }
 

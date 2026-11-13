@@ -32,7 +32,6 @@ import {
   watchRunInTempDirWarning
 } from './system-warning-dialogs'
 import { watchUpdateDownloadFailed } from './update-download-failed-notification'
-import { watchWinRateTeamAlert } from './win-rate-team-alert'
 
 /**
  * 主窗口常驻通知中心。
@@ -92,7 +91,6 @@ export class SimpleNotificationsRenderer implements IAkariShardInitDispose {
     this.setupInAppScope.addSetupFn(() => watchAutoReconnectNotification())
     this.setupInAppScope.addSetupFn(() => watchRunInTempDirWarning())
     this.setupInAppScope.addSetupFn(() => watchUpdateDownloadFailed(this.context))
-    this.setupInAppScope.addSetupFn(() => watchWinRateTeamAlert(this.context))
   }
 
   showNoticeModal() {

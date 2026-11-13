@@ -1,0 +1,48 @@
+::selection {
+  background: #c0c0c0;
+  text-shadow: none;
+}
+
+:root {
+  --la-mac-titlebar-safe-left: 76px;
+  --la-background-color-primary: var(--la-color-bg-primary);
+  --la-app-min-height: 380px;
+  --la-app-min-width: 560px;
+  --la-titlebar-height: 36px;
+  --la-scrollbar-height: 8px;
+  --la-scrollbar-width: 8px;
+}
+
+::-webkit-scrollbar {
+  width: var(--la-scrollbar-width);
+  height: var(--la-scrollbar-height);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--la-color-scrollbar-thumb);
+  border-radius: 4px;
+
+  &:hover {
+    background-color: var(--la-color-scrollbar-thumb-hover);
+  }
+}
+
+#app,
+html,
+body,
+#naive-ui-config-provider {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--la-background-color-primary);
+  color: var(--la-color-text-primary);
+  line-height: normal;
+}
+
+a,
+a:visited {
+  color: var(--la-color-link);
+}
