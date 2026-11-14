@@ -45,6 +45,7 @@ export class AkariWinRateTeamAlertWindow extends BaseAkariWindow<
       rememberPosition: false,
       rememberSize: true,
       repositionWindowIfInvisible: true,
+      repaintResizeNudge: true,
       browserWindowOptions: {
         title: AkariWinRateTeamAlertWindow.TITLE,
         icon,
@@ -67,11 +68,22 @@ export class AkariWinRateTeamAlertWindow extends BaseAkariWindow<
    * 展示一次提醒。窗口不存在时会先创建, 就绪后自动显示。
    */
   showAlert(payload: WinRateTeamAlertDisplayPayload) {
+    this._logger.info('showAlert requested', {
+      gameId: payload.gameId,
+      players: payload.players.length
+    })
+
     runInAction(() => this.state.setAlert(payload))
 
     this._pendingShow = true
 
     this.createWindow()
+
+    this._logger.info('showAlert state', {
+      ready: this.state.ready,
+      hasWindow: !!this._window,
+      visible: this._window?.isVisible() ?? null
+    })
 
     if (this.state.ready) {
       this._reveal()
@@ -87,14 +99,39 @@ export class AkariWinRateTeamAlertWindow extends BaseAkariWindow<
   }
 
   private _reveal() {
-    if (!this._window || this._window.isDestroyed()) {
+    const win = this._window
+
+    if (!win || win.isDestroyed()) {
       return
     }
 
     this._pendingShow = false
 
+    const visibleBefore = win.isVisible()
+
     this._centerOnActiveDisplay()
-    this.show()
+
+    const visibleAfterCenter = win.isVisible()
+
+    // 不能走基类 show()：Windows 上对隐藏窗口调用 setBounds 会把它「实体化」，
+    // 于是基类看到 isVisible() === true 就跳过真正的 show()，Electron 也就不再发出
+    // 'show' 事件 —— 挂在 'show' 上的重绘逻辑随之失效，留下一个可见但从不绘制的白框。
+    // 这里直接强制显示并主动请求重绘。
+    win.show()
+    win.focus()
+
+    runInAction(() => this.state.setShow(win.isVisible()))
+
+    this._requestRepaint()
+
+    this._probeRenderedContent()
+
+    this._logger.info('Reveal alert window', {
+      visibleBefore,
+      visibleAfterCenter,
+      visibleAfterShow: win.isVisible(),
+      bounds: win.getBounds()
+    })
   }
 
   /**

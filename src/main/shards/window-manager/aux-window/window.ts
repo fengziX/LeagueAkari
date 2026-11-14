@@ -33,6 +33,8 @@ export class AkariAuxWindow extends BaseAkariWindow<AuxWindowState, AuxWindowSet
       rememberPosition: true,
       rememberSize: true,
       repositionWindowIfInvisible: true,
+      // 这个窗口反复 hide/show，是白框的高发点
+      repaintResizeNudge: true,
       settingSchema: {
         enabled: { default: settings.enabled, schema: z.boolean() },
         autoShow: { default: settings.autoShow, schema: z.boolean() }

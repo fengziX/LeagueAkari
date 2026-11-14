@@ -137,7 +137,12 @@ export class OngoingGameWinRateTeamAlertController {
       players: payload.players.length
     })
 
-    this._context.windowManager.winRateTeamAlertWindow.showAlert(this._toDisplayPayload(payload))
+    try {
+      this._context.windowManager.winRateTeamAlertWindow.showAlert(this._toDisplayPayload(payload))
+    } catch (error) {
+      // 提醒本身失败不应影响战绩查询, 但必须留下痕迹, 否则表现为「什么都没弹」
+      logger.error('Failed to show win rate team alert window', error)
+    }
   }
 
   /**

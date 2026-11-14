@@ -82,6 +82,15 @@ export interface AkariBaseWindowConfig<TSettings extends BaseAkariWindowBasicSet
   rememberMaximized?: boolean
 
   /**
+   * 显示时用 1px 尺寸抖动强制 Windows 重新分配窗口表面。
+   *
+   * 「窗口可见但不出帧」是这个应用在 Windows 上反复出现的白框形态，`invalidate()`
+   * 有时不足以让合成器产出新帧，而真实的 resize 一定会。只对小型浮层窗口开启，
+   * 避免主窗口出现内容重排。
+   */
+  repaintResizeNudge?: boolean
+
+  /**
    * BrowserWindow 选项
    */
   browserWindowOptions?: BrowserWindowConstructorOptions
@@ -109,6 +118,11 @@ export abstract class BaseAkariWindow<
 
   protected _forceReadyTimerId: NodeJS.Timeout | null = null
   protected _trueClose = false
+
+  /**
+   * 单次显示周期内因「可见但 DOM 为空」而触发的重载次数
+   */
+  private _blankReloadCount = 0
 
   private _wasMaximized = false
   private _pendingMaximizedRestore = false
@@ -505,6 +519,8 @@ export abstract class BaseAkariWindow<
       this._logger.info(`BrowserWindow show (${this._namespace})`)
       runInAction(() => (this.state.show = true))
 
+      this._blankReloadCount = 0
+
       // 复用同一个窗口反复 hide/show 后，Windows 上偶发整窗白帧：渲染进程其实正常，
       // 只是合成器没有产出新帧。显示时主动请求重绘，并在稍后补一次。
       this._requestRepaint()
@@ -743,7 +759,7 @@ export abstract class BaseAkariWindow<
    * DOM 也在，只是合成器没有产出新帧。`invalidate()` 会让 Chromium 重新合成；
    * 再补一次稍晚的调用，覆盖「显示后首帧被丢弃」的时序。
    */
-  private _requestRepaint() {
+  protected _requestRepaint() {
     const invalidate = () => {
       const wc = this._window?.webContents as
         | (Electron.WebContents & { invalidate?: () => void })
@@ -762,13 +778,40 @@ export abstract class BaseAkariWindow<
 
     invalidate()
     setTimeout(invalidate, 150)
+
+    if (this._config.repaintResizeNudge) {
+      setTimeout(() => this._nudgeResize(), 60)
+    }
+  }
+
+  /**
+   * 1px 尺寸抖动：强制 Windows 重新分配窗口表面并重建交换链。
+   */
+  private _nudgeResize() {
+    const win = this._window
+
+    if (!win || win.isDestroyed() || !win.isVisible()) {
+      return
+    }
+
+    if (win.isMaximized() || win.isFullScreen() || win.isMinimized()) {
+      return
+    }
+
+    try {
+      const bounds = win.getBounds()
+      win.setBounds({ ...bounds, height: bounds.height + 1 })
+      win.setBounds(bounds)
+    } catch {
+      // 抖动失败不应影响窗口显示
+    }
   }
 
   /**
    * 把渲染进程实际渲染出的内容摘要写进日志，用于区分「窗口空白」是绘制问题还是渲染问题：
    * 有节点且有文本 → 绘制层；节点或文本为空 → 渲染层。
    */
-  private _probeRenderedContent() {
+  protected _probeRenderedContent() {
     setTimeout(() => {
       const wc = this._window?.webContents
 
@@ -786,11 +829,37 @@ export abstract class BaseAkariWindow<
       )
         .then((summary: string) => {
           this._logger.info(`Rendered content probe (${this._namespace}): ${summary}`)
+
+          if (/textLen=0(\s|$)/.test(summary) && /nodes=\d+/.test(summary)) {
+            this._healBlankContent(summary)
+          }
         })
         .catch((error: unknown) => {
           this._logger.warn(`Rendered content probe failed (${this._namespace})`, error)
         })
     }, 300)
+  }
+
+  /**
+   * 窗口可见但 DOM 是空的（白框的另一种形态）时重载页面。
+   *
+   * 所有需要的数据都通过 IPC 同步，重载后会自动重新渲染，因此这是安全的自愈手段。
+   * 限制次数，避免渲染进程真的坏掉时陷入重载循环。
+   */
+  private _healBlankContent(summary: string) {
+    if (this._blankReloadCount >= 2) {
+      this._logger.warn(
+        `Blank content persists after ${this._blankReloadCount} reloads (${this._namespace}): ${summary}`
+      )
+      return
+    }
+
+    this._blankReloadCount += 1
+    this._logger.warn(
+      `Blank content detected, reloading (${this._namespace}, attempt ${this._blankReloadCount})`
+    )
+
+    this._window?.webContents.reload()
   }
 
   show(inactive = false) {
